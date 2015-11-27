@@ -24,7 +24,7 @@ var hardConfig = {
     title: 'geOrchestra mobile',
     geOrchestraBaseUrl: 'http://sdi.georchestra.org/',
     projection: projection,
-    initialExtent: [-12880000,-1080000,5890000,7540000],
+    initialExtent: [749089.5585061276, 6010014.718731863, 944768.3509161788, 6297112.196970986],
     maxExtent: [-20037508.34, -20037508.34, 20037508.34, 20037508.34],
     restrictedExtent: [-20037508.34, -20037508.34, 20037508.34, 20037508.34],
     maxFeatures: 10,
@@ -51,7 +51,7 @@ var hardConfig = {
 
 
 var SViewer = function() {
-    var map;
+    var map, map2;
     var view;
     var marker;
 
@@ -310,8 +310,11 @@ var SViewer = function() {
             contentHeight -= (content.outerHeight() - content.height());
             content.height(contentHeight);
         }
-        if (window.map) {
+        if (map) {
             map.updateSize();
+        }
+        if (map2) {
+            map2.updateSize();
         }
     }
 
@@ -1069,7 +1072,7 @@ ol.extent.getTopRight(extent).reverse().join(" "),
     // Zoom +
     function zoomIn() {
         var zoom = ol.animation.zoom({
-            duration: 500,
+            duration: 0,
             source: view.getCenter(),
             resolution: view.getResolution()
         });
@@ -1080,7 +1083,7 @@ ol.extent.getTopRight(extent).reverse().join(" "),
     //Zoom -
     function zoomOut() {
         var zoom = ol.animation.zoom({
-            duration: 500,
+            duration: 0,
             source: view.getCenter(),
             resolution: view.getResolution()
         });
@@ -1186,11 +1189,15 @@ ol.extent.getTopRight(extent).reverse().join(" "),
                 doConfiguration();
                 doMap();
                 doGUI();
+                buildLayersCombo();
+
             })
             .fail(function() {
                 doConfiguration();
                 doMap();
                 doGUI();
+                buildLayersCombo();
+
             });
     }
     
@@ -1288,6 +1295,62 @@ ol.extent.getTopRight(extent).reverse().join(" "),
         }
     }
 
+    function buildLayersCombo() {
+        var layersCfg = [{
+            layername: 'CD67_DECHETS_EPCI_TRAIT_2008_C48',
+            url: 'https://www.cigalsace.org/geoserver/CD67/ows'
+        },{
+            layername: 'CD67_CANTON_67_2015_3948',
+            url: 'https://www.cigalsace.org/geoserver/CD67/ows'
+        },{
+            layername: 'CRA_aprona_invplaine_1A_reseau_SUP2009_2009',
+            url: 'https://www.cigalsace.org/geoserver/CRA/ows'
+        },{
+            layername: 'CRA_PLAQUETTE_CHAUFFERIE_CC48',
+            url: 'https://www.cigalsace.org/geoserver/CRA/ows'
+        }];
+
+        var comboLayers = [];
+
+        $.each(layersCfg, function(i, cfg) {
+            var layerQ = new LayerQueryable({
+                layername: cfg.layername,
+                wmsurl_layer: cfg.url,
+                wmsurl_ns: cfg.url
+            });
+            comboLayers.push(layerQ);
+
+            $('#selectCombo1').append($('<option>', {
+                value: cfg.layername,
+                text: layerQ.md.title || cfg.layername
+            }));
+            $('#selectCombo2').append($('<option>', {
+                value: cfg.layername,
+                text: layerQ.md.title || cfg.layername
+            }));
+        });
+
+        var getLayer = function(layername) {
+            for( var i = 0; i<comboLayers.length; i++) {
+                var layer = comboLayers[i].wmslayer;
+                if(layer.getSource().getParams().LAYERS == layername) {
+                    return layer;
+                }
+            }
+        };
+
+        $('#selectCombo1').on('change', function(e) {
+            map.getLayers().removeAt(0);
+            map.getLayers().insertAt(0, getLayer(this.value));
+        });
+        $('#selectCombo2').on('change', function(e) {
+            map2.getLayers().removeAt(0);
+            map2.getLayers().insertAt(0, getLayer(this.value));
+        });
+
+
+    }
+
 
     /**
      * creates the map
@@ -1302,14 +1365,32 @@ ol.extent.getTopRight(extent).reverse().join(" "),
             ],
             layers: [],
             overlays: [],
-            target: 'map',
+            target: 'map1',
+            interactions: ol.interaction.defaults({
+                zoomDuration: 0,
+                dragPan: false
+            }).extend([new ol.interaction.DragPan({
+                kinetic: null
+            })]),
+            view: view
+        });
+        map2 = new ol.Map({
+            controls: [
+                new ol.control.ScaleLine(),
+                new ol.control.Attribution()
+            ],
+            layers: [],
+            overlays: [],
+            target: 'map2',
+            interactions: map.getInteractions(),
             view: view
         });
 
         // adding background layers (opaque, non queryable, mutually exclusive)
         $.each(config.layersBackground, function() {
                 this.setVisible(false);
-                map.addLayer(this);
+            map.addLayer(this);
+            map2.addLayer(this);
             }
         );
         switchBackground(config.lb);

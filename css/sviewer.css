@@ -75,8 +75,11 @@ p.center {
 .sv-framemap {
     padding: 0px;
     background: transparent url('images/bgpaper.jpg');
+    display: flex;
 }
-
+#map1 {
+    border-right: 1px red solid;
+}
 .sv-map-controls {
     position: absolute;
     top: 4px;
@@ -143,9 +146,11 @@ p.center {
 }
 
 .sv-map {
-    width: 100%;
+    width: 50%;
     height: 100%;
     cursor: hand;
+    outline: none;
+
 }
 
 .sv-map-controls .ui-btn{
@@ -302,4 +307,19 @@ screen and (max-height: 400px) {
 }
 .sv-location a {
     font-size: 0.7em;
+}
+
+/*Dual viewer*/
+.ui-field-contain {
+    position:absolute;
+    bottom: 25px;
+}
+.ui-select {
+    min-width: 20%;
+}
+#combo1 {
+    left: 5px;
+}
+#combo2 {
+    right: 5px;
 }

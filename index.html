@@ -18,7 +18,7 @@
     <script src="build/ol-simple.js" type="text/javascript"></script>
     -->
     <link rel="stylesheet" href="build/ol.css" type="text/css" />
-    <script src="build/ol.js" type="text/javascript"></script>
+    <script src="build/ol-debug.js" type="text/javascript"></script>
     <!-- jquery mobile -->
     <script type="text/javascript">
 //<![CDATA[
@@ -46,8 +46,19 @@ $(document).bind("mobileinit", function(){
     <!-- content -->
       <div data-role="content" id="frameMap" class="sv-framemap">
         <!-- map -->
-        <div id="map" class="sv-map" tabindex="0">
+        <div id="map1" class="sv-map" tabindex="0">
             <div id="marker"></div>
+        </div>
+        <div id="map2" class="sv-map" tabindex="0">
+        </div>
+
+        <div class="ui-field-contain" id="combo1">
+              <select name="select-native-1" id="selectCombo1">
+              </select>
+        </div>
+        <div class="ui-field-contain" id="combo2">
+              <select name="select-native-1" id="selectCombo2">
+              </select>
         </div>
 
         <!-- map controls -->
